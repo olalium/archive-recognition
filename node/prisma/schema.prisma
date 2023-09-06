@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  enable_experimental_decimal = true
+}
+
+generator python_client {
+  provider = "prisma-client-py"
+  output = "../../python_client/prisma_client"
+  previewFeatures = ["postgresqlExtensions"]
+  enable_experimental_decimal = true
+}
+
+datasource db {
+  provider    = "postgresql"
+  url         = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model Image {
+  id        Int     @id @default(autoincrement())
+  md5       String  @unique
+  paths     String[]
+  faces     Face[]
+}
+
+model Person {
+  id        Int     @id @default(autoincrement())
+  name      String
+  faces     Face[]
+}
+
+model Face {
+  id        Int     @id @default(autoincrement())
+  embedding Decimal[]
+  embedding_vector Unsupported("vector(128)")?
+  person    Person  @relation(fields: [personId], references: [id])
+  personId  Int
+  image     Image   @relation(fields: [imageId], references: [id])
+  imageId   Int
+}
